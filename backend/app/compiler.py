@@ -12,7 +12,7 @@ def compile_latex(content: str):
 
     text_path = os.path.join(job_dir, "input.tex")
     with open(text_path, "w", encoding="utf-8") as f:
-        f.write()
+        f.write(content)
     
     result = subprocess.run(
         ["pdflatex", "-interaction=nonstopmode", "input.tex"],
