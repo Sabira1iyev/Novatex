@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+venv/
+.venv/
+
+# LaTeX job outputs (generated files, not source)
+backend/jobs/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
