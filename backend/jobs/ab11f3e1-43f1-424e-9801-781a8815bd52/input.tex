@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{tikz}
+\usepackage{luacode}
+
+\setmainlanguage{turkish}
+\setotherlanguage{english}
+
+\setmainfont{Arial}
+
+\title{LuaLaTeX Yetenek Testi}
+\author{Sabir Aliyev}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Unicode ve Coklu Dil Destegi}
+Turkce ozel karakterler: ğ, ş, ı, ö, ü, ç, İ, Ğ, Ş, Ö, Ü, Ç dogrudan yaziliyor,
+ekstra paket (inputenc/babel) gerekmiyor.
+
+\begin{english}
+English text mixed in: The quick brown fox jumps over the lazy dog.
+\end{english}
+
+Gurcuce (Unicode, farkli bir alfabe):
+\begin{center}
+{\fontspec{Noto Sans Georgian} გამარჯობა მსოფლიო, ეს არის ტესტი}
+\end{center}
+
+\section{Lua Kodu Calistirma}
+LuaLaTeX'in en guclu ozelligi: belge icinde gercek Lua kodu calistirabilmek.
+Asagidaki hesaplama Lua ile yapildi, LaTeX degil:
+
+\begin{luacode}
+function fibonacci(n)
+  local a, b = 0, 1
+  for i = 1, n do
+    a, b = b, a + b
+  end
+  return a
+end
+
+tex.print("10. Fibonacci sayisi: " .. fibonacci(10))
+\end{luacode}
+
+\section{Matematik}
+\begin{equation}
+    \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
+\end{equation}
+
+\begin{equation}
+    e^{i\pi} + 1 = 0
+\end{equation}
+
+\section{Tikz Grafik}
+\begin{center}
+\begin{tikzpicture}
+\draw[thick, blue] (0,0) circle (2cm);
+\draw[thick, red] (-2,0) -- (2,0);
+\draw[thick, red] (0,-2) -- (0,2);
+\node at (0,2.5) {LuaLaTeX + Tikz};
+\end{tikzpicture}
+\end{center}
+
+\section{Sonuc}
+Eger bu belge sorunsuz derlendiyse, backend artik:
+\begin{itemize}
+    \item Unicode karakterleri (Turkce, Gurcuce) ekstra ayar gerekmeden,
+    \item Coklu dil desteğini (\texttt{polyglossia}),
+    \item Belge icinde calisan gercek Lua kodunu (\texttt{luacode}),
+\end{itemize}
+destekliyor demektir.
+
+\end{document}

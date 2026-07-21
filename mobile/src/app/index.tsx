@@ -5,20 +5,21 @@ import {
   Text,
   TextInput,
   View,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Pressable
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { compileLatex } from "@/services/api";
 import { saveAndSharePdf } from "@/utils/pdf";
+import PdfViewer from "@/components/PdfViewer";
 
 export default function Index() {
   const [code, setCode] = useState(
     "\\documentclass{article}\n\\begin{document}\nSabir Aliyev\n\\end{document}",
   );
   const [loading, setLoading] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
 
   const handleCompile = async () => {
     setLoading(true);
@@ -33,7 +34,8 @@ export default function Index() {
         setLoading(false);
         return;
       }
-      await saveAndSharePdf(result.pdf_base64);
+      
+      setPdfBase64(result.pdf_base64);
       setLoading(false);
     } catch (err: any) {
       Alert.alert("Connection error", err.message);
@@ -41,30 +43,43 @@ export default function Index() {
     }
   };
 
+  if (pdfBase64) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.pdfHeader}>
+          <Pressable onPress={() => setPdfBase64(null)}>
+            <Text style={styles.backText}>Back to code editor</Text>
+          </Pressable>
+        </View>
+        <PdfViewer base64={pdfBase64} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
-        style={{flex: 1}}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-      > 
-      <View style={styles.container}>
-        <Text style={styles.label}>Novatex</Text>
-        <TextInput
-          multiline
-          value={code}
-          onChangeText={setCode}
-          style={styles.editor}
-        />
-        <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleCompile}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Compiling" : "Turn To PDF"}
-          </Text>
-        </Pressable>
-      </View>
+      >
+        <View style={styles.container}>
+          <Text style={styles.label}>Novatex</Text>
+          <TextInput
+            multiline
+            value={code}
+            onChangeText={setCode}
+            style={styles.editor}
+          />
+          <Pressable
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleCompile}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Compiling" : "Turn To PDF"}
+            </Text>
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -111,5 +126,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlignVertical: "top",
     marginBottom: 16,
+  },
+  pdfHeader: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  backText: {
+    color: "#2196f3",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
