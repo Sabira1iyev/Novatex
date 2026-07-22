@@ -1,0 +1,15 @@
+# Fdb version 4
+["pdflatex"] 1784745409.16714 "input.tex" "input.pdf" "input" 1784745411.98478 0
+  "C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1784648120.36168 163260 f7138aa97b0a1dcae55100dabb7d9e7d ""
+  "C:/Users/User/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1780821409.09024 13318606 3e6bd8fb44f0e1454d4ddbfee81c6fbb ""
+  "D:/New folder/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1247596667 35752 024fb6c41858982481f6968b5fc26508 ""
+  "D:/New folder/tex/latex/base/article.cls" 1761900684 20144 b966087dda3b194755eb460d32e2ef75 ""
+  "D:/New folder/tex/latex/base/size10.clo" 1761900684 8448 686612a86f0e04f41ea577f5ec7e83d8 ""
+  "D:/New folder/tex/latex/l3backend/l3backend-pdftex.def" 1761202581 30662 bfd6e864f4ffc5018b0e2b6260c3181c ""
+  "input.aux" 1784745411.85519 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "input.tex" 1784745404.99991 71 31890b3877685f249564586433ea7b3c ""
+  (generated)
+  "input.aux"
+  "input.log"
+  "input.pdf"
+  (rewritten before read)
