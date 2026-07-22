@@ -24,7 +24,7 @@ def compile_latex(content: str):
         engine = detect_engine(content)
         
         result = subprocess.run(
-            ["latexmk", f"-{engine}", "-interaction=nonstopmode","-halt-on-error", "input.tex"],
+            ["latexmk", f"-{engine}", "-interaction=nonstopmode","-halt-on-error", "-synctex=1", "input.tex"],
             cwd=job_dir,
             capture_output=True,
             encoding= "utf-8",

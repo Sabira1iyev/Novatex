@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Alert,
   StyleSheet,
@@ -8,18 +8,19 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { compileLatex } from "@/services/api";
-import { saveAndSharePdf } from "@/utils/pdf";
+import { compileLatex, syncTex } from "@/services/api";
 import PdfViewer from "@/components/PdfViewer";
 
 export default function Index() {
-  const [code, setCode] = useState(
-    "\\documentclass{article}\n\\begin{document}\nSabir Aliyev\n\\end{document}",
-  );
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const inputRef = useRef<TextInput>(null);
+
 
   const handleCompile = async () => {
     setLoading(true);
@@ -34,8 +35,9 @@ export default function Index() {
         setLoading(false);
         return;
       }
-      
+
       setPdfBase64(result.pdf_base64);
+      setJobId(result.job_id);
       setLoading(false);
     } catch (err: any) {
       Alert.alert("Connection error", err.message);
@@ -43,15 +45,42 @@ export default function Index() {
     }
   };
 
+  const handleSyncRequest = async (page: number, x:number, y:number) => {
+    console.log(`[SYNC] Tapped PDF! Page: ${page}, X: ${x}, Y: ${y}`);
+    if(!jobId) {
+      console.log("[SYNC] Error: No jobId saved in state!");
+      return;
+    }
+
+    const result = await syncTex(jobId, page, x, y);
+    console.log("[SYNC] Backend result:", result);
+
+    if(result.success && result.line){
+      setPdfBase64(null);
+
+      setTimeout(() => {
+        if(inputRef.current){
+          inputRef.current.focus();
+        }
+      }, 100);
+    }
+    else{
+      console.log("Line number not found.");
+    }
+  }
+
   if (pdfBase64) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.pdfHeader}>
-          <Pressable onPress={() => setPdfBase64(null)}>
-            <Text style={styles.backText}>Back to code editor</Text>
+          <Pressable
+            onPress={() => setPdfBase64(null)}
+            style={styles.backButton}
+          >
+            <Text style={styles.backText}>Back</Text>
           </Pressable>
         </View>
-        <PdfViewer base64={pdfBase64} />
+        <PdfViewer base64={pdfBase64} onSyncRequest={handleSyncRequest}/>
       </SafeAreaView>
     );
   }
@@ -63,13 +92,17 @@ export default function Index() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.container}>
-          <Text style={styles.label}>Novatex</Text>
-          <TextInput
-            multiline
-            value={code}
-            onChangeText={setCode}
-            style={styles.editor}
-          />
+          <Text style={styles.label}>NOVATEX</Text>
+          <ScrollView style={styles.editor}>
+            <TextInput
+            ref={inputRef}
+              multiline
+              value={code}
+              onChangeText={setCode}
+              scrollEnabled={false}
+            />
+          </ScrollView>
+
           <Pressable
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleCompile}
@@ -101,6 +134,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
+    textAlign: "center",
   },
   button: {
     borderRadius: 18,
@@ -121,7 +155,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 10,
+    padding: 3,
     fontFamily: "monospace",
     fontSize: 14,
     textAlignVertical: "top",
@@ -133,8 +167,16 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   backText: {
-    color: "#2196f3",
+    color: "#ffffffff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    backgroundColor: "#2196f3",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    borderRadius: 20,
   },
 });
