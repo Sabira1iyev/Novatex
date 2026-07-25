@@ -1,7 +1,18 @@
+from app.utils import cleanup_job
 import subprocess
 import os
 import uuid
 import base64
+import threading
+
+def delete_later(job_dir: str, delay_seconds: int = 3600):
+    def _delete():
+        import time
+        time.sleep(delay_seconds)
+        cleanup_job(job_dir)
+    
+    thread = threading.Thread(target=_delete, daemon=True)
+    thread.start()
 
 
 def detect_engine(content:str)-> str:
@@ -50,14 +61,18 @@ def compile_latex(content: str):
                 "log": log
             }, job_dir
 
-
-        with open(pdf_path, "rb")as f:
+        with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
         pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
 
-        return{
-            "success":True, "pdf_base64":pdf_base64
+        delete_later(job_dir)
+
+        return {
+            "success": True,
+            "pdf_base64": pdf_base64,
+            "job_id": job_id
         }, job_dir
+    
     
     except Exception as e:
         return {

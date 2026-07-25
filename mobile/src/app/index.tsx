@@ -20,7 +20,9 @@ export default function Index() {
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
-
+  const [editSelection, setEditorSelection] = useState<
+    { start: number; end: number } | undefined
+  >(undefined);
 
   const handleCompile = async () => {
     setLoading(true);
@@ -45,9 +47,23 @@ export default function Index() {
     }
   };
 
-  const handleSyncRequest = async (page: number, x:number, y:number) => {
+  const getLineAge = (text: string, lineNumber: number) => {
+    const lines = text.split("\n");
+    let start = 0;
+
+    for (let i = 0; i < lineNumber - 1; i++) {
+      start += lines[i].length + 1;
+    }
+    const end = start + (lines[lineNumber - 1]?.length ?? 0);
+    return {
+      start,
+      end,
+    };
+  };
+
+  const handleSyncRequest = async (page: number, x: number, y: number) => {
     console.log(`[SYNC] Tapped PDF! Page: ${page}, X: ${x}, Y: ${y}`);
-    if(!jobId) {
+    if (!jobId) {
       console.log("[SYNC] Error: No jobId saved in state!");
       return;
     }
@@ -55,19 +71,18 @@ export default function Index() {
     const result = await syncTex(jobId, page, x, y);
     console.log("[SYNC] Backend result:", result);
 
-    if(result.success && result.line){
+    if (result.success && result.line) {
       setPdfBase64(null);
 
       setTimeout(() => {
-        if(inputRef.current){
-          inputRef.current.focus();
-        }
-      }, 100);
-    }
-    else{
+        const { start, end } = getLineAge(code, result.line);
+        setEditorSelection({ start, end });
+        inputRef.current?.focus();
+      }, 150);
+    } else {
       console.log("Line number not found.");
     }
-  }
+  };
 
   if (pdfBase64) {
     return (
@@ -80,7 +95,7 @@ export default function Index() {
             <Text style={styles.backText}>Back</Text>
           </Pressable>
         </View>
-        <PdfViewer base64={pdfBase64} onSyncRequest={handleSyncRequest}/>
+        <PdfViewer base64={pdfBase64} onSyncRequest={handleSyncRequest} />
       </SafeAreaView>
     );
   }
@@ -95,11 +110,13 @@ export default function Index() {
           <Text style={styles.label}>NOVATEX</Text>
           <ScrollView style={styles.editor}>
             <TextInput
-            ref={inputRef}
+              ref={inputRef}
               multiline
               value={code}
               onChangeText={setCode}
               scrollEnabled={false}
+              selection={editSelection}
+              onSelectionChange={() => setEditorSelection(undefined)}
             />
           </ScrollView>
 

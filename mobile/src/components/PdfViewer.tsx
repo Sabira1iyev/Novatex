@@ -56,26 +56,34 @@ export default function PdfViewer({ base64, onSyncRequest }: Props) {
                     };
                     page.render(renderContext);
 
-
+                    var lastTapTime = 0;
                     canvas.addEventListener('click', function(e){
-                     var rect = canvas.getBoundingClientRect();
-                     var scaleX = canvas.width / rect.width;
-                     var scaleY = canvas.height / rect.height;
+                    var now = Date.now();
+                    var timeDiff = now - lastTapTime;
+                    if(timeDiff < 300){
+                        var rect = canvas.getBoundingClientRect();
+                        var scaleX = canvas.width / rect.width;
+                        var scaleY = canvas.height / rect.height;
 
-                     var clickX = (e.clientX - rect.left) * scaleX;
-                     var clickY = (e.clientY - rect.top) * scaleY;
+                        var clickX = (e.clientX - rect.left) * scaleX;
+                        var clickY = (e.clientY - rect.top) * scaleY;
 
-                     var pdfX = clickX;
-                     var pdfY = viewport.height - clickY;
+                        var pdfX = clickX / scale;
+                        var pdfY = clickY / scale;
 
-                     if(window.ReactNativeWebView){
-                     var msg = JSON.stringify({
-                     page: currentPage,
-                     x:pdfX,
-                     y:pdfY});
-                     window.ReactNativeWebView.postMessage(msg);
-                     }
-                    });
+                        if(window.ReactNativeWebView){
+                            var msg = JSON.stringify({
+                                page: currentPage,
+                                x: pdfX,
+                                y: pdfY
+                            });
+                            window.ReactNativeWebView.postMessage(msg);
+                        }
+                        lastTapTime = 0; 
+                    } else {
+                        lastTapTime = now;
+                    }
+                    }); 
                 });
             })(pageNum);
 
