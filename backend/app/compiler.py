@@ -5,7 +5,7 @@ import uuid
 import base64
 import threading
 
-def delete_later(job_dir: str, delay_seconds: int = 3600):
+def delete_later(job_dir: str, delay_seconds: int = 3600):  
     def _delete():
         import time
         time.sleep(delay_seconds)
