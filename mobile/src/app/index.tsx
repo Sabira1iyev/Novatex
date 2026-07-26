@@ -13,16 +13,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { compileLatex, syncTex } from "@/services/api";
 import PdfViewer from "@/components/PdfViewer";
+import CodeEditor from "@/components/CodeEditor";
 
 export default function Index() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
-  const inputRef = useRef<TextInput>(null);
-  const [editSelection, setEditorSelection] = useState<
-    { start: number; end: number } | undefined
-  >(undefined);
+  const [highlightline, setHighlightLine] = useState<number | null>(null);
 
   const handleCompile = async () => {
     setLoading(true);
@@ -73,12 +71,7 @@ export default function Index() {
 
     if (result.success && result.line) {
       setPdfBase64(null);
-
-      setTimeout(() => {
-        const { start, end } = getLineAge(code, result.line);
-        setEditorSelection({ start, end });
-        inputRef.current?.focus();
-      }, 150);
+      setHighlightLine(result.line);
     } else {
       console.log("Line number not found.");
     }
@@ -108,18 +101,16 @@ export default function Index() {
       >
         <View style={styles.container}>
           <Text style={styles.label}>NOVATEX</Text>
-          <ScrollView style={styles.editor}>
-            <TextInput
-              ref={inputRef}
-              multiline
-              value={code}
-              onChangeText={setCode}
-              scrollEnabled={false}
-              selection={editSelection}
-              onSelectionChange={() => setEditorSelection(undefined)}
-            />
-          </ScrollView>
-
+         <View style={styles.editor}>
+         <CodeEditor
+         initialValue={code}
+         onChange={(text) => {
+          setCode(text)
+          setHighlightLine(null)
+         }}
+         highlightLine={highlightline}
+         />         
+</View>
           <Pressable
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleCompile}
@@ -143,7 +134,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     paddingBottom: 24,
     backgroundColor: "#fff",
   },
@@ -158,6 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
     padding: 12,
     alignItems: "center",
+    marginHorizontal:16,
   },
   buttonDisabled: {
     backgroundColor: "#ccc",
@@ -169,13 +161,6 @@ const styles = StyleSheet.create({
   },
   editor: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 3,
-    fontFamily: "monospace",
-    fontSize: 14,
-    textAlignVertical: "top",
     marginBottom: 16,
   },
   pdfHeader: {
