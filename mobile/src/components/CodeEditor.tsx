@@ -32,8 +32,9 @@ export default function CodeEditor({
     WebViewRef.current?.injectJavaScript(js);
   }, [highlightLine]);
 
-  const source = useMemo(() => ({
-    html: `
+  const source = useMemo(
+    () => ({
+      html: `
      <!DOCTYPE html>
     <html>
     <head>
@@ -58,7 +59,33 @@ export default function CodeEditor({
           mode: "stex",
           lineNumbers: true,
           lineWrapping: true,
+          inputStyle: "contenteditable",
+          spellcheck:false,
+          autocorrect:false,
+          autocapitalize:false
         });
+
+        const inputDom = editor.getInputField();
+        const handleKey = (e) => {
+          const cur = editor.getCursor();
+          if(cur.ch === 0 && cur.line > 0){
+          e.preventDefault();
+          const prevlen = editor.getLine(cur.line - 1).length;
+          editor.replaceRange("", {line: cur.line - 1, ch:prevlen}, {line: cur.line, ch: 0});
+          }
+        };
+
+        inputDom.addEventListener("beforeinput", (e) => {
+        if(e.inputType === "deleteContentBackward"){
+        handleKey(e);
+        }
+        })
+
+        inputDom.addEventListener("keydown", (e) => {
+        if(e.key === "Backspace" || e.keyCode === 8){
+        handleKey(e);
+        }
+        })
 
         let timeout;
         editor.on("change", () => {
@@ -68,19 +95,25 @@ export default function CodeEditor({
           }, 300);
         });
 
-        ${highlightLine != null ? `
+        ${
+          highlightLine != null
+            ? `
         setTimeout(() => {
           const lineIndex = ${highlightLine - 1};
           editor.addLineClass(lineIndex, 'background', 'highlighted-line');
           editor.setCursor({line: lineIndex, ch: 0});
           editor.scrollIntoView({line: lineIndex, ch: 0}, 150);
         }, 150);
-        ` : ''}
+        `
+            : ""
+        }
       </script>
     </body>
     </html>
-    `
-  }), []);
+    `,
+    }),
+    [],
+  );
 
   return (
     <View style={styles.container}>
