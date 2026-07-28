@@ -48,6 +48,10 @@ export default function CodeEditor({
         .highlighted-line{
         background:#ffe08a !important;
         }
+
+        .CodeMirror-scroll, .CodeMirror-sizer, .CodeMirror-lines, .CodeMirror-code, [contenteditable = "true"]{
+        min-height: 100% !important;
+        }
       </style>
     </head>
     <body>
@@ -87,6 +91,15 @@ export default function CodeEditor({
         }
         })
 
+
+      inputDom.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      });
+      inputDom.addEventListener("touchend", (e) => {
+        e.stopPropagation();
+      });
+        
+
         let timeout;
         editor.on("change", () => {
           clearTimeout(timeout);
@@ -118,6 +131,7 @@ export default function CodeEditor({
   return (
     <View style={styles.container}>
       <WebView
+        keyboardDisplayRequiresUserAction={false}
         ref={WebViewRef}
         originWhitelist={["*"]}
         source={source}
