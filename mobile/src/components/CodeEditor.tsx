@@ -1,6 +1,7 @@
 import WebView from "react-native-webview";
 import { View, StyleSheet } from "react-native";
 import { useEffect, useRef, useMemo } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
   initialValue: string;
@@ -14,12 +15,25 @@ export default function CodeEditor({
   highlightLine,
 }: Props) {
   const WebViewRef = useRef<WebView>(null);
+  const { isDark, theme } = useTheme();
+
+  useEffect(() => {
+    const themeName = isDark ? "dracula" : "default";
+    const bgColor = isDark ? "#282a36" : "#ffffff";
+    const js = `
+      document.body.style.backgroundColor = "${bgColor}";
+      if (typeof editor !== 'undefined') {
+        editor.setOption("theme", "${themeName}");
+      }
+      true;
+    `;
+    WebViewRef.current?.injectJavaScript(js);
+  }, [isDark]);
 
   useEffect(() => {
     if (highlightLine == null) return;
     const lineIndex = highlightLine - 1;
     const js = `
-    
     document.querySelectorAll('.highlighted-line').forEach(el => el.classList.remove('highlighted-line'));
     editor.addLineClass(${lineIndex}, 'background', 'highlighted-line');
     editor.setCursor({
@@ -40,10 +54,11 @@ export default function CodeEditor({
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
       <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
       <style>
-        html, body { margin: 0; padding: 0; height: 100%; }
+        html, body { margin: 0; padding: 0; height: 100%; background-color: ${isDark ? "#282a36" : "#ffffff"}; }
         .CodeMirror { height: 100%; font-size: 15px; }
         .highlighted-line{
         background:#ffe08a !important;
@@ -61,6 +76,7 @@ export default function CodeEditor({
 
         const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
           mode: "stex",
+          theme: "${isDark ? "dracula" : "default"}",
           lineNumbers: true,
           lineWrapping: true,
           inputStyle: "contenteditable",
@@ -136,7 +152,7 @@ export default function CodeEditor({
         originWhitelist={["*"]}
         source={source}
         onMessage={(event) => onChange(event.nativeEvent.data)}
-        style={styles.webview}
+        style={[styles.webview, { backgroundColor: theme.surface }]}
       ></WebView>
     </View>
   );

@@ -1,8 +1,8 @@
-import { API_URL } from "@/contants.ts/config";
+import { API_URL } from "@/contants/config";
 
 export type CompileResult =
-  | { success: true; pdf_base64: string, job_id: string }
-  | { success: false; log: string, job_dir?: string };
+  | { success: true; pdf_base64: string; job_id: string }
+  | { success: false; log: string; job_dir?: string };
 
 export async function compileLatex(content: string): Promise<CompileResult> {
   const response = await fetch(`${API_URL}/compile`, {
