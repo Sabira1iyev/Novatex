@@ -19,7 +19,7 @@ import { useTheme } from "@/context/ThemeContext";
 import "@/global.css";
 
 export default function Index() {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(dummyCode);
   const [loading, setLoading] = useState(false);
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -124,22 +124,46 @@ export default function Index() {
             >
               NOVA<Text style={{color: theme.accent}}>TEX</Text>
             </Text>
-            <Pressable
-              onPress={toggleTheme}
-              className="px-4 py-2 rounded-full border shadow-sm flex-row items-center"
-              style={{
-                backgroundColor: theme.surface,
-                borderColor: theme.border,
-              }}
-            >
-              <Text className="mr-2 font-semibold">{isDark ? "☀️" : "🌙"}</Text>
-              <Text
-                style={{ color: theme.text }}
-                className="text-sm font-semibold pr2"
+            <View className="flex-row items-center">
+              <Pressable
+                onPress={() => {
+                  Alert.alert(
+                    "Clear All",
+                    "Are you sure you want to delete everything?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Clear", style: "destructive", onPress: () => setCode("") }
+                    ]
+                  );
+                }}
+                className="px-3 py-2 rounded-full border shadow-sm flex-row items-center mr-2"
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: "#ef4444",
+                }}
               >
-                {isDark ? "Light" : "Dark"}
-              </Text>
-            </Pressable>
+                <Text style={{ color: "#ef4444" }} className="font-semibold text-sm pr-1">
+                  🗑️ Clear
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={toggleTheme}
+                className="px-4 py-2 rounded-full border shadow-sm flex-row items-center"
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                }}
+              >
+                <Text className="mr-2 font-semibold">{isDark ? "☀️" : "🌙"}</Text>
+                <Text
+                  style={{ color: theme.text }}
+                  className="text-sm font-semibold pr2"
+                >
+                  {isDark ? "Light" : "Dark"}
+                </Text>
+              </Pressable>
+            </View>
           </View>
           <View
             className="flex-1 my-2 overflow-hidden rounded-xl border-[1px]"

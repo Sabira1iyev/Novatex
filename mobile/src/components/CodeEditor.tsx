@@ -31,6 +31,17 @@ export default function CodeEditor({
   }, [isDark]);
 
   useEffect(() => {
+    if (initialValue === "") {
+      WebViewRef.current?.injectJavaScript(`
+        if (typeof editor !== 'undefined') {
+          editor.setValue("");
+        }
+        true;
+      `);
+    }
+  }, [initialValue]);
+
+  useEffect(() => {
     if (highlightLine == null) return;
     const lineIndex = highlightLine - 1;
     const js = `
@@ -89,23 +100,39 @@ export default function CodeEditor({
         const handleKey = (e) => {
           const cur = editor.getCursor();
           if(cur.ch === 0 && cur.line > 0){
-          e.preventDefault();
-          const prevlen = editor.getLine(cur.line - 1).length;
-          editor.replaceRange("", {line: cur.line - 1, ch:prevlen}, {line: cur.line, ch: 0});
+            e.preventDefault();
+            const prevlen = editor.getLine(cur.line - 1).length;
+            editor.replaceRange("", {line: cur.line - 1, ch:prevlen}, {line: cur.line, ch: 0});
           }
         };
 
+        const tryDeleteSelection = (e) => {
+            const sel = window.getSelection();
+            if (sel && !sel.isCollapsed) {
+                e.preventDefault();
+                if (sel.toString().length >= editor.getValue().length - 20) {
+                    editor.setValue("");
+                } else {
+                    sel.deleteFromDocument();
+                }
+                return true;
+            }
+            return false;
+        };
+
         inputDom.addEventListener("beforeinput", (e) => {
-        if(e.inputType === "deleteContentBackward"){
-        handleKey(e);
-        }
-        })
+          if(e.inputType === "deleteContentBackward" || e.inputType === "deleteByCut"){
+            if (tryDeleteSelection(e)) return;
+            handleKey(e);
+          }
+        });
 
         inputDom.addEventListener("keydown", (e) => {
-        if(e.key === "Backspace" || e.keyCode === 8){
-        handleKey(e);
-        }
-        })
+          if(e.key === "Backspace" || e.keyCode === 8){
+            if (tryDeleteSelection(e)) return;
+            handleKey(e);
+          }
+        });
 
 
       inputDom.addEventListener("touchstart", (e) => {
