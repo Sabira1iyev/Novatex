@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { dummyCode } from "@/contants/dummyCode";
+import Svg, { Path, Text as SvgText } from "react-native-svg";
 import {
   Alert,
   StyleSheet,
@@ -19,12 +20,13 @@ import { useTheme } from "@/context/ThemeContext";
 import "@/global.css";
 
 export default function Index() {
-  const [code, setCode] = useState(dummyCode);
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [highlightline, setHighlightLine] = useState<number | null>(null);
   const { theme, isDark, toggleTheme } = useTheme();
+  const [isPdfVisible, setIsPdfVisible] = useState<boolean>(false);
 
   const handleCompile = async () => {
     setLoading(true);
@@ -42,6 +44,7 @@ export default function Index() {
 
       setPdfBase64(result.pdf_base64);
       setJobId(result.job_id);
+      setIsPdfVisible(true);
       setLoading(false);
     } catch (err: any) {
       Alert.alert("Connection error", err.message);
@@ -81,24 +84,30 @@ export default function Index() {
     }
   };
 
-  if (pdfBase64) {
+  if (isPdfVisible && pdfBase64) {
     return (
-      <SafeAreaView 
-      className="flex-1"
-      style={{backgroundColor:theme.background}}>
+      <SafeAreaView
+        className="flex-1"
+        style={{ backgroundColor: theme.background }}
+      >
         <View
-        className="flex-row items-center px-4 py-3 border-b"
-        style={{borderColor: theme.border, backgroundColor: theme.background}}>
+          className="flex-row items-center px-4 py-3 border-b"
+          style={{
+            borderColor: theme.border,
+            backgroundColor: theme.background,
+          }}
+        >
           <Pressable
-          className="px-5 py-2 rounded-full border"
-            onPress={() => setPdfBase64(null)}
-            style={{backgroundColor: theme.surface, borderColor: theme.border}}
+            className="px-5 py-2 rounded-full border"
+            onPress={() => setIsPdfVisible(false)}
+            style={{
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+            }}
           >
-            <Text style={{color: theme.text}}
-            className="font-semibold"
-            >
-              
-              Back</Text>
+            <Text style={{ color: theme.text }} className="font-semibold">
+              Back
+            </Text>
           </Pressable>
         </View>
         <PdfViewer base64={pdfBase64} onSyncRequest={handleSyncRequest} />
@@ -122,7 +131,7 @@ export default function Index() {
               style={{ color: theme.text }}
               className="text-2xl font-black tracking-widest pr-2"
             >
-              NOVA<Text style={{color: theme.accent}}>TEX</Text>
+              NOVA<Text style={{ color: theme.accent }}>TEX</Text>
             </Text>
             <View className="flex-row items-center">
               <Pressable
@@ -132,8 +141,12 @@ export default function Index() {
                     "Are you sure you want to delete everything?",
                     [
                       { text: "Cancel", style: "cancel" },
-                      { text: "Clear", style: "destructive", onPress: () => setCode("") }
-                    ]
+                      {
+                        text: "Clear",
+                        style: "destructive",
+                        onPress: () => setCode(""),
+                      },
+                    ],
                   );
                 }}
                 className="px-3 py-2 rounded-full border shadow-sm flex-row items-center mr-2"
@@ -142,7 +155,10 @@ export default function Index() {
                   borderColor: "#ef4444",
                 }}
               >
-                <Text style={{ color: "#ef4444" }} className="font-semibold text-sm pr-1">
+                <Text
+                  style={{ color: "#ef4444" }}
+                  className="font-semibold text-sm pr-1"
+                >
                   🗑️ Clear
                 </Text>
               </Pressable>
@@ -155,7 +171,9 @@ export default function Index() {
                   borderColor: theme.border,
                 }}
               >
-                <Text className="mr-2 font-semibold">{isDark ? "☀️" : "🌙"}</Text>
+                <Text className="mr-2 font-semibold">
+                  {isDark ? "☀️" : "🌙"}
+                </Text>
                 <Text
                   style={{ color: theme.text }}
                   className="text-sm font-semibold pr2"
@@ -181,22 +199,36 @@ export default function Index() {
               highlightLine={highlightline}
             />
           </View>
-
-          <Pressable
-            className="mx-3 mb-3 py-4 rounded-2xl items-center justify-center shadow-md active:opacity-80"
-            style={{ backgroundColor: loading ? theme.border : theme.accent }}
-            onPress={handleCompile}
-            disabled={loading}
-          >
-            <Text
-              style={{
-                color: loading ? theme.textSecondary : theme.accentText,
-              }}
-              className="text-xl tracking-wider"
+          <View className="flex-row mx-3 mb-3 gap-3">
+            <Pressable
+              className="flex-1 py-4 rounded-full items-center justify-center shadow-md active:opacity-80"
+              style={{ backgroundColor: loading ? theme.border : theme.accent }}
+              onPress={handleCompile}
+              disabled={loading}
             >
-              {loading ? "Compiling" : "Turn To PDF"}
-            </Text>
-          </Pressable>
+              <Text
+                style={{
+                  color: loading ? theme.textSecondary : theme.accentText,
+                }}
+                className="text-xl tracking-wider"
+              >
+                {loading ? "Compiling" : "Turn To PDF"}
+              </Text>
+            </Pressable>
+            {pdfBase64 && (
+              <Pressable
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                }}
+                className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
+                onPress={() => setIsPdfVisible(true)}
+              >
+                <Text className="text-2xl">📄</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
