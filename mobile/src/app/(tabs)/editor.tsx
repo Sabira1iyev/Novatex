@@ -52,19 +52,7 @@ export default function Index() {
     }
   };
 
-  const getLineAge = (text: string, lineNumber: number) => {
-    const lines = text.split("\n");
-    let start = 0;
 
-    for (let i = 0; i < lineNumber - 1; i++) {
-      start += lines[i].length + 1;
-    }
-    const end = start + (lines[lineNumber - 1]?.length ?? 0);
-    return {
-      start,
-      end,
-    };
-  };
 
   const handleSyncRequest = async (page: number, x: number, y: number) => {
     console.log(`[SYNC] Tapped PDF! Page: ${page}, X: ${x}, Y: ${y}`);
@@ -117,6 +105,7 @@ export default function Index() {
 
   return (
     <SafeAreaView
+    edges={['top', 'left', 'right',]}
       className="flex-1"
       style={[styles.safeArea, { backgroundColor: theme.background }]}
     >
@@ -199,7 +188,7 @@ export default function Index() {
               highlightLine={highlightline}
             />
           </View>
-          <View className="flex-row mx-3 mb-3 gap-3">
+          <View className="flex-row mx-3 mb-2 gap-3">
             <Pressable
               className="flex-1 py-4 rounded-full items-center justify-center shadow-md active:opacity-80"
               style={{ backgroundColor: loading ? theme.border : theme.accent }}
