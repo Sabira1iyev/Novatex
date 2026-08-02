@@ -10,14 +10,14 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  background: "#121417",
-  surface: "#1C1F24",
-  border: "#2A2E35",
-  text: "#F0F1F3",
-  textSecondary: "#9CA3AF",
-  accent: "#4DA3FF",
-  accentText: "#0A0A0A",
-  danger: "#FF6B6B",
+  background: "#090A0F",
+  surface: "#151724",
+  border: "#292C44",
+  text: "#FFFFFF",
+  textSecondary: "#8892B0",
+  accent: "#00E5FF",
+  accentText: "#000000",
+  danger: "#FF0055",
 };
 
 export type Theme = typeof lightTheme;
