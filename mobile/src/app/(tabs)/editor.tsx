@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { dummyCode } from "@/contants/dummyCode";
-import Svg, { Path, Text as SvgText } from "react-native-svg";
 import {
   Alert,
   StyleSheet,
