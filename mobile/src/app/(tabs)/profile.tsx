@@ -1,9 +1,10 @@
 import { View, Text, Pressable } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
+import { useRouter } from "expo-router";
 
 export default function Profile() {
   const { theme } = useTheme();
-
+  const router = useRouter();
   return (
     <View
       className="flex-1 px-6 pt-12"
@@ -59,6 +60,7 @@ export default function Profile() {
         <Pressable
           className="mt-auto mb-10 py-4 items-center shadow-sm rounded-full active:opacity-80"
           style={{ backgroundColor: theme.danger }}
+          onPress={() => router.replace("/auth/sign-in")}
         >
           <Text className="text-xl font-semibold" style={{ color: "#FFFFFF" }}>
             Logout
