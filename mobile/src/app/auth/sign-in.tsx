@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { View, Pressable, Text, TextInput } from "react-native";
 import { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
+import { saveToken } from "@/utils/auth";
 
 export default function SignIn() {
   const router = useRouter();
@@ -9,8 +10,11 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignIn = () => {
+  const handleSignIn = async() => {
     if (password === "12345678") {
+     
+      await saveToken("token");
+
       router.replace("/(tabs)");
     } else {
       alert("Invalid Password!");
@@ -18,7 +22,10 @@ export default function SignIn() {
   };
 
   return (
-    <View className="flex-1 w-full gap-4 mt-8 px-6 items-center justify-center">
+    <View
+      className="flex-1 w-full gap-4 mt-8 px-6 items-center justify-center"
+      style={{ backgroundColor: theme.background }}
+    >
       <Text style={{ color: theme.text }} className="text-3xl">
         Sign In
       </Text>
@@ -26,6 +33,7 @@ export default function SignIn() {
       <View className="w-full flex flex-col items-center justify-center gap-2">
         <TextInput
           placeholder="Email"
+          placeholderTextColor={theme.textSecondary}
           value={email}
           onChangeText={setEmail}
           className="w-full px-5 py-4 mb-4 rounded-xl text-lg"
@@ -37,6 +45,7 @@ export default function SignIn() {
 
         <TextInput
           placeholder="Password"
+          placeholderTextColor={theme.textSecondary}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -65,7 +74,10 @@ export default function SignIn() {
             Don't have an account?
           </Text>
           <Pressable onPress={() => router.replace("/auth/sign-up")}>
-            <Text className="border-b" style={{ color: theme.accent }}>
+            <Text
+              className="underline font-bold"
+              style={{ color: theme.accent }}
+            >
               Sign Up
             </Text>
           </Pressable>
