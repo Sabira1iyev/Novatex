@@ -26,7 +26,7 @@ export default function SignIn() {
       className="flex-1 w-full gap-4 mt-8 px-6 items-center justify-center"
       style={{ backgroundColor: theme.background }}
     >
-      <Text style={{ color: theme.text }} className="text-3xl">
+      <Text style={{ color: theme.text }} className="text-3xl font-bold">
         Sign In
       </Text>
 
