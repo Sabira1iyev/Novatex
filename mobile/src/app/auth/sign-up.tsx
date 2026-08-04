@@ -13,8 +13,40 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
+
+  const isAlphaNumeric = /^[a-zA-Z0-9*]*$/.test(password);
+  const handleSignUp = () => {
+    setError("");
+    setSuccess("");
+    if (!firstname) {
+      setError("Firstname is required!");
+      return;
+    }
+    if (!lastname) {
+      setError("Lastname is required!");
+      return;
+    }
+    if (!email) {
+      setError("Email is required!");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long!");
+      return;
+    }
+    if (!isAlphaNumeric) {
+      setError("Password must contain only alphabets and numbers!");
+      return;
+    }
+    if (confirmPassword !== password) {
+      setError("Password do not match!");
+      return;
+    }
+    setSuccess("Registration successful!");
+  };
 
   return (
     <View
@@ -132,11 +164,23 @@ export default function SignUp() {
       <Pressable
         className="w-full py-4 rounded-full items-center"
         style={{ backgroundColor: theme.accent }}
+        onPress={() => handleSignUp()}
       >
         <Text className="text-xl font-bold" style={{ color: theme.accentText }}>
           Sign Up
         </Text>
       </Pressable>
+
+      {error && (
+        <View className="w-full flex flex-col justify-center items-center">
+          <Text className="text-red-500 font-bold text-xl">{error}</Text>
+        </View>
+      )}
+      {success && (
+        <View className="w-full flex flex-col justify-center items-center">
+          <Text className="text-green-500 font-bold text-xl">{success}</Text>
+        </View>
+      )}
       <View className="flex-row items-center gap-2">
         <Text style={{ color: theme.textSecondary }}>
           Already have an account?
