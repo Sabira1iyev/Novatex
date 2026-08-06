@@ -18,7 +18,7 @@ export default function SignUp() {
   const { theme } = useTheme();
 
   const isAlphaNumeric = /^[a-zA-Z0-9*]*$/.test(password);
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setError("");
     setSuccess("");
     if (!firstname) {
@@ -46,6 +46,31 @@ export default function SignUp() {
       return;
     }
     setSuccess("Registration successful!");
+
+    try {
+      const response = await fetch("http://192.168.100.4:8000/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          first_name: firstname,
+          last_name: lastname,
+          email: email,
+          password: password,
+        }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Successfully Registered!" + data.message);
+        router.replace("/auth/sign-in");
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      setError("Something went wrong!Please try again later.");
+    }
   };
 
   return (

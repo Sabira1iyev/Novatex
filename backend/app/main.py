@@ -1,9 +1,17 @@
-from fastapi import FastAPI, BackgroundTasks
-from app.models import TextRequest, SyncRequest
+from fastapi import FastAPI, BackgroundTasks, Depends, HTTPException
+from sqlalchemy.orm import Session
+import bcrypt
+from app import models, schema, database
 from app.compiler import compile_latex
+from app.schema import TextRequest, SyncRequest
 from app.utils import cleanup_job, run_synctex
+from app.routers import auth
+models.Base.metadata.create_all(bind=database.engine)
+
 
 app = FastAPI()
+
+app.include_router(auth.router)
 
 @app.post("/compile")
 async def compile_tex(request: TextRequest):
