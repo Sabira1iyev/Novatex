@@ -10,14 +10,28 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignIn = async() => {
-    if (password === "12345678") {
-     
-      await saveToken("token");
+  const handleSignIn = async () => {
+    try {
+      const response = await fetch("http://192.168.100.4:8000/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+      const data = await response.json();
 
-      router.replace("/(tabs)");
-    } else {
-      alert("Invalid Password!");
+      if (response.ok) {
+        saveToken(data.token);
+        router.replace("/(tabs)");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert("Something went wrong!Please try again later.");
     }
   };
 
