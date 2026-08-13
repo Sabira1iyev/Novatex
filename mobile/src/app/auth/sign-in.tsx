@@ -3,6 +3,7 @@ import { View, Pressable, Text, TextInput } from "react-native";
 import { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { saveToken } from "@/utils/auth";
+import { API_URL } from "../../contants/config";
 
 export default function SignIn() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function SignIn() {
 
   const handleSignIn = async () => {
     try {
-      const response = await fetch("https://novatex-pn20.onrender.com/auth/signin", {
+      const response = await fetch(`${API_URL}/auth/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

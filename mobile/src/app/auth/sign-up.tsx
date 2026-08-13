@@ -3,6 +3,7 @@ import { useState, useEffect, use } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { API_URL } from "../../contants/config";
 
 export default function SignUp() {
   const [firstname, setFirstname] = useState("");
@@ -48,7 +49,7 @@ export default function SignUp() {
     setSuccess("Registration successful!");
 
     try {
-      const response = await fetch("https://novatex-pn20.onrender.com/auth/signup", {
+      const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
