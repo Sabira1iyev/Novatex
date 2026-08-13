@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     texlive-fonts-recommended \
     texlive-fonts-extra \
     texlive-science \
+    texlive-plain-generic \
+    texlive-pictures \
     latexmk \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
