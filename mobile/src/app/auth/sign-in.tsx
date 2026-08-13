@@ -12,7 +12,7 @@ export default function SignIn() {
 
   const handleSignIn = async () => {
     try {
-      const response = await fetch("http://192.168.100.4:8000/auth/signin", {
+      const response = await fetch("http://192.168.100.60:8000/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
