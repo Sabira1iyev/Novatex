@@ -48,7 +48,7 @@ export default function SignUp() {
     setSuccess("Registration successful!");
 
     try {
-      const response = await fetch("http://192.168.100.4:8000/auth/signup", {
+      const response = await fetch("https://novatex-pn20.onrender.com/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
