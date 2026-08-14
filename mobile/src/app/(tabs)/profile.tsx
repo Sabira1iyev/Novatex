@@ -22,6 +22,23 @@ export default function Profile() {
     fetchUser();
   }, []);
 
+  const handleDeleteUser = async () => {
+    const user_id = await AsyncStorage.getItem("user_id");
+    if (user_id) {
+      const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        await AsyncStorage.removeItem("user_id");
+        await AsyncStorage.removeItem("userToken");
+        router.replace("/auth/sign-in");
+      }
+    }
+  };
+
   return (
     <View
       className="flex-1 px-6 pt-12"
@@ -75,12 +92,22 @@ export default function Profile() {
         </Pressable>
 
         <Pressable
-          className="mt-auto mb-10 py-4 items-center shadow-sm rounded-full active:opacity-80"
+          className="mt-auto mb-1 py-4 items-center shadow-sm rounded-full active:opacity-80"
           style={{ backgroundColor: theme.danger }}
           onPress={() => router.replace("/auth/sign-in")}
         >
           <Text className="text-xl font-semibold" style={{ color: "#FFFFFF" }}>
             Logout
+          </Text>
+        </Pressable>
+
+        <Pressable
+          className="mt-auto mb-10 py-4 items-center shadow-sm rounded-full active:opacity-80"
+          style={{ backgroundColor: theme.danger }}
+          onPress={() => handleDeleteUser()}
+        >
+          <Text className="text-xl font-semibold" style={{ color: "#FFFFFF" }}>
+            Delete account
           </Text>
         </Pressable>
       </View>
