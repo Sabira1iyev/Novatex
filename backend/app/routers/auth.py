@@ -44,7 +44,21 @@ def sigIn(user: schema.UserSignIn, db: Session=Depends(database.get_db)):
     
     return {
         "message": "Successfully signed In",
-        "token" : "token"
+        "token" : "token",
+        "user_id": db_user.id
     }
 
 
+@router.get("/users/{user_id}")
+def get_user(user_id: int, db: Session=Depends(database.get_db)):
+    user= db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return{
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email
+    }

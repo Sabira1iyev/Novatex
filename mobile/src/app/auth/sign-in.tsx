@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { saveToken } from "@/utils/auth";
 import { API_URL } from "../../contants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignIn() {
   const router = useRouter();
@@ -27,12 +28,13 @@ export default function SignIn() {
 
       if (response.ok) {
         saveToken(data.token);
+        await AsyncStorage.setItem("user_id", String(data.user_id));
         router.replace("/(tabs)");
       } else {
         alert(data.message);
       }
-    } catch (error) {
-      alert("Something went wrong!Please try again later.");
+    } catch (error: any) {
+      alert("Hata Detayı: " + error.message);
     }
   };
 

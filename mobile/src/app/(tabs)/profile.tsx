@@ -1,10 +1,27 @@
 import { View, Text, Pressable } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
+import { use, useEffect, useState } from "react";
+import { API_URL } from "@/contants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Profile() {
   const { theme } = useTheme();
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user_id = await AsyncStorage.getItem("user_id");
+      if (user_id) {
+        const response = await fetch(`${API_URL}/auth/users/${user_id}`);
+        const data = await response.json();
+        setUser(data);
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <View
       className="flex-1 px-6 pt-12"
@@ -22,10 +39,10 @@ export default function Profile() {
           <Text className="text-4xl">👤</Text>
         </View>
         <Text style={{ color: theme.text }} className="text-2xl">
-          Sabir Aliyev
+          {user?.first_name} {user?.last_name}
         </Text>
         <Text className="text-sm" style={{ color: theme.textSecondary }}>
-          s.aliyev2005@gmail.com
+          {user?.email}
         </Text>
       </View>
 
