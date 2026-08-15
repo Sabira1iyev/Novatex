@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { dummyCode } from "@/contants/dummyCode";
 import {
   Alert,
@@ -20,6 +20,7 @@ import "@/global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "@/contants/config";
 import { FontAwesome } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
 
 export default function Index() {
   const [code, setCode] = useState("");
@@ -103,6 +104,24 @@ export default function Index() {
       console.log("Line number not found.");
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSavedFile = async () => {
+        const savedTitle = await AsyncStorage.getItem("edit_title");
+        const savedCode = await AsyncStorage.getItem("edit_code");
+
+        if (savedTitle && savedCode) {
+          setTitle(savedTitle);
+          setCode(savedCode);
+
+          await AsyncStorage.removeItem("edit_title");
+          await AsyncStorage.removeItem("edit_code");
+        }
+      };
+      loadSavedFile();
+    }, []),
+  );
 
   if (isPdfVisible && pdfBase64) {
     return (
@@ -221,6 +240,7 @@ export default function Index() {
               }}
               className="text-lg font-bold px-4 mx-8 mt-2 mb-2 rounded-xl border-[1px]"
               placeholder="Enter filename"
+              placeholderTextColor={theme.text}
             />
             <CodeEditor
               initialValue={code}
