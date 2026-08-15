@@ -56,7 +56,9 @@ export default function Index() {
   };
 
   const handleSaveFile = async () => {
-    const user_id = await AsyncStorage.getItem("user_id");
+    if (!code) {
+      return alert("Please enter some code to save.");
+    }
     const token = await AsyncStorage.getItem("userToken");
     if (!token) {
       return alert("You must be logged in to save your files.");
@@ -230,7 +232,6 @@ export default function Index() {
             />
           </View>
           <View className="flex-row mx-3 mb-2 gap-3">
-
             <Pressable
               style={{
                 backgroundColor: theme.surface,
@@ -241,11 +242,14 @@ export default function Index() {
               onPress={() => handleSaveFile()}
             >
               <Text className="text-2xl">
-                <FontAwesome name="check" size={24} color={theme.textSecondary} />
+                <FontAwesome
+                  name="check"
+                  size={24}
+                  color={theme.textSecondary}
+                />
               </Text>
             </Pressable>
 
-            
             <Pressable
               className="flex-1 py-4 rounded-full items-center justify-center shadow-md active:opacity-80"
               style={{ backgroundColor: loading ? theme.border : theme.accent }}
@@ -272,8 +276,14 @@ export default function Index() {
                 onPress={() => setIsPdfVisible(true)}
               >
                 <Text className="text-2xl">
-                  {  <FontAwesome name="eye" size={24} color={theme.textSecondary} />}
-                  </Text>
+                  {
+                    <FontAwesome
+                      name="eye"
+                      size={24}
+                      color={theme.textSecondary}
+                    />
+                  }
+                </Text>
               </Pressable>
             )}
           </View>
