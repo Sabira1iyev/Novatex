@@ -2,6 +2,7 @@ from fastapi import FastAPI, BackgroundTasks, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import bcrypt
+from app.routers import  files
 from app import models, schema, database
 from app.compiler import compile_latex
 from app.schema import TextRequest, SyncRequest
@@ -21,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(files.router)
 
 @app.post("/compile")
 async def compile_tex(request: TextRequest):

@@ -17,6 +17,9 @@ import PdfViewer from "@/components/PdfViewer";
 import CodeEditor from "@/components/CodeEditor";
 import { useTheme } from "@/context/ThemeContext";
 import "@/global.css";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "@/contants/config";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function Index() {
   const [code, setCode] = useState("");
@@ -26,6 +29,7 @@ export default function Index() {
   const [highlightline, setHighlightLine] = useState<number | null>(null);
   const { theme, isDark, toggleTheme } = useTheme();
   const [isPdfVisible, setIsPdfVisible] = useState<boolean>(false);
+  const [title, setTitle] = useState("");
 
   const handleCompile = async () => {
     setLoading(true);
@@ -51,7 +55,34 @@ export default function Index() {
     }
   };
 
-
+  const handleSaveFile = async () => {
+    const user_id = await AsyncStorage.getItem("user_id");
+    const token = await AsyncStorage.getItem("userToken");
+    if (!token) {
+      return alert("You must be logged in to save your files.");
+    }
+    try {
+      const response = await fetch(`${API_URL}/files/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: title,
+          content: code,
+        }),
+      });
+      if (response.ok) {
+        alert("Filed saved successfully!");
+      } else {
+        alert("Something went wrong while saving file");
+      }
+    } catch (error: any) {
+      console.log(error);
+      alert("Error:" + error);
+    }
+  };
 
   const handleSyncRequest = async (page: number, x: number, y: number) => {
     console.log(`[SYNC] Tapped PDF! Page: ${page}, X: ${x}, Y: ${y}`);
@@ -104,7 +135,7 @@ export default function Index() {
 
   return (
     <SafeAreaView
-    edges={['top', 'left', 'right',]}
+      edges={["top", "left", "right"]}
       className="flex-1"
       style={[styles.safeArea, { backgroundColor: theme.background }]}
     >
@@ -178,6 +209,17 @@ export default function Index() {
               backgroundColor: theme.surface,
             }}
           >
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              style={{
+                color: theme.text,
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+              }}
+              className="text-lg font-bold px-4 mx-8 mt-2 mb-2 rounded-xl border-[1px]"
+              placeholder="Enter filename"
+            />
             <CodeEditor
               initialValue={code}
               onChange={(text) => {
@@ -188,6 +230,22 @@ export default function Index() {
             />
           </View>
           <View className="flex-row mx-3 mb-2 gap-3">
+
+            <Pressable
+              style={{
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+                borderWidth: 1,
+              }}
+              className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
+              onPress={() => handleSaveFile()}
+            >
+              <Text className="text-2xl">
+                <FontAwesome name="check" size={24} color={theme.textSecondary} />
+              </Text>
+            </Pressable>
+
+            
             <Pressable
               className="flex-1 py-4 rounded-full items-center justify-center shadow-md active:opacity-80"
               style={{ backgroundColor: loading ? theme.border : theme.accent }}
@@ -213,7 +271,9 @@ export default function Index() {
                 className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
                 onPress={() => setIsPdfVisible(true)}
               >
-                <Text className="text-2xl">📄</Text>
+                <Text className="text-2xl">
+                  {  <FontAwesome name="eye" size={24} color={theme.textSecondary} />}
+                  </Text>
               </Pressable>
             )}
           </View>
