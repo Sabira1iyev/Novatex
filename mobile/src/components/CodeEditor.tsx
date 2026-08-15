@@ -31,14 +31,15 @@ export default function CodeEditor({
   }, [isDark]);
 
   useEffect(() => {
-    if (initialValue === "") {
-      WebViewRef.current?.injectJavaScript(`
-        if (typeof editor !== 'undefined') {
-          editor.setValue("");
-        }
-        true;
-      `);
-    }
+    const js = `
+       if(typeof editor !== 'undefined'){
+       if(editor.getValue() !== ${JSON.stringify(initialValue)}){
+       editor.setValue(${JSON.stringify(initialValue)});
+       }
+       }
+       true;
+       `;
+    WebViewRef.current?.injectJavaScript(js);
   }, [initialValue]);
 
   useEffect(() => {

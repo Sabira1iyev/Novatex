@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { use, useEffect, useState } from "react";
 import { API_URL } from "@/contants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function Profile() {
   const { theme } = useTheme();
@@ -51,6 +52,21 @@ export default function Profile() {
         await AsyncStorage.removeItem("userToken");
         router.replace("/auth/sign-in");
       }
+    }
+  };
+
+  const handleDeleteBook = async (id: number) => {
+    const token = await AsyncStorage.getItem("userToken");
+    const response = await fetch(`${API_URL}/files/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      alert("Book deleted successfully");
+      setFiles(files.filter((f) => f.id !== id));
     }
   };
 
@@ -130,22 +146,46 @@ export default function Profile() {
                   backgroundColor: theme.surface,
                   borderColor: theme.border,
                 }}
+                onPress={async () => {
+                  await AsyncStorage.setItem("edit_title", file.title);
+                  await AsyncStorage.setItem("edit_code", file.content);
+                  router.replace("/editor");
+                }}
               >
                 <View className="">
-                  <View
-                    className="w-10 h-10 rounded-full items-center justify-center mb-3 border-[1px]"
-                    style={{
-                      backgroundColor: theme.surface,
-                      borderColor: theme.border,
-                    }}
-                  >
-                    <Text className="text-xl">📄</Text>
+                  <View className="flex-row items-center justify-between w-full mb-3">
+                    <Pressable
+                      onPress={() => handleDeleteBook(file.id)}
+                      style={{
+                        backgroundColor: theme.surface,
+                        borderColor: theme.border,
+                        borderWidth: 1,
+                      }}
+                      className="w-10 h-10 rounded-full flex items-center justify-center shadow-md active:opacity-80"
+                    >
+                      <Text className="text-2xl">
+                        <FontAwesome
+                          name="trash"
+                          size={18}
+                          color={theme.danger}
+                        />
+                      </Text>
+                    </Pressable>
+                    <View
+                      className="w-10 h-10 rounded-full items-center justify-center border-[1px]"
+                      style={{
+                        backgroundColor: theme.surface,
+                        borderColor: theme.border,
+                      }}
+                    >
+                      <Text className="text-xl">📄</Text>
+                    </View>
                   </View>
                   <Text
                     style={{
                       color: theme.text,
                     }}
-                    className="text-base"
+                    className="w-full text-base justify-center text-center"
                     numberOfLines={2}
                   >
                     {file.title}
