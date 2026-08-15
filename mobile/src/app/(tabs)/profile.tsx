@@ -13,8 +13,13 @@ export default function Profile() {
   useEffect(() => {
     const fetchUser = async () => {
       const user_id = await AsyncStorage.getItem("user_id");
-      if (user_id) {
-        const response = await fetch(`${API_URL}/auth/users/${user_id}`);
+      const token = await AsyncStorage.getItem("userToken");
+      if (user_id && token) {
+        const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data = await response.json();
         setUser(data);
       }
@@ -24,11 +29,13 @@ export default function Profile() {
 
   const handleDeleteUser = async () => {
     const user_id = await AsyncStorage.getItem("user_id");
-    if (user_id) {
+    const token = await AsyncStorage.getItem("userToken");
+    if (user_id && token) {
       const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
       if (response.ok) {
