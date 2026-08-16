@@ -171,7 +171,7 @@ export default function Profile() {
           }}
         >
           <Text className="text-lg" style={{ color: theme.text }}>
-            Theme Settings
+            Theme Settings 🎨
           </Text>
           <Text
             style={{ color: theme.textSecondary }}
