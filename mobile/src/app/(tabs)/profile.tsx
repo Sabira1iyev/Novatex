@@ -1,7 +1,7 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
-import { useRouter } from "expo-router";
-import { use, useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { API_URL } from "@/contants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -12,29 +12,6 @@ export default function Profile() {
   const [user, setUser] = useState<any>(null);
   const [files, setFiles] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user_id = await AsyncStorage.getItem("user_id");
-      const token = await AsyncStorage.getItem("userToken");
-      if (user_id && token) {
-        const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        setUser(data);
-      }
-      const fileResponse = await fetch(`${API_URL}/files`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const filesData = await fileResponse.json();
-      setFiles(filesData);
-    };
-    fetchUser();
-  }, []);
 
   const handleDeleteUser = async () => {
     const user_id = await AsyncStorage.getItem("user_id");
@@ -69,6 +46,34 @@ export default function Profile() {
       setFiles(files.filter((f) => f.id !== id));
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUser = async () => {
+        const user_id = await AsyncStorage.getItem("user_id");
+        const token = await AsyncStorage.getItem("userToken");
+
+        if (user_id && token) {
+          const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          setUser(data);
+        }
+
+        const fileResponse = await fetch(`${API_URL}/files`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const filesData = await fileResponse.json();
+        setFiles(filesData);
+      };
+      fetchUser();
+    }, []),
+  );
 
   return (
     <View
