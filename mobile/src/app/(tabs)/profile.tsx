@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { useFocusEffect, useRouter } from "expo-router";
-import {useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { API_URL } from "@/contants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -95,16 +95,16 @@ export default function Profile() {
               Authorization: `Bearer ${token}`,
             },
           });
-          
+
           if (fileResponse.ok) {
             const filesData = await fileResponse.json();
             setFiles(Array.isArray(filesData) ? filesData : []);
           } else {
-            console.log("Sunucu hatasi:", fileResponse.status);
+            console.log("Error:", fileResponse.status);
             setFiles([]);
           }
         } catch (e) {
-          console.log("Baglanti hatasi (Crash engellendi):", e);
+          console.log("Connection error (Crash prevented):", e);
         }
       };
       fetchUser();
