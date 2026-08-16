@@ -57,6 +57,9 @@ export default function Index() {
   };
 
   const handleSaveFile = async () => {
+    if (!title) {
+      return alert("Please enter title for your file");
+    }
     if (!code) {
       return alert("Please enter some code to save.");
     }
@@ -282,7 +285,7 @@ export default function Index() {
                 }}
                 className="text-xl tracking-wider"
               >
-                {loading ? "Compiling" : "Turn To PDF"}
+                {loading ? "Compiling" : "Convert to PDF"}
               </Text>
             </Pressable>
             {pdfBase64 && (

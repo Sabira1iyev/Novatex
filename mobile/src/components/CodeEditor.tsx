@@ -1,6 +1,6 @@
 import WebView from "react-native-webview";
 import { View, StyleSheet } from "react-native";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 type Props = {
@@ -15,6 +15,7 @@ export default function CodeEditor({
   highlightLine,
 }: Props) {
   const WebViewRef = useRef<WebView>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { isDark, theme } = useTheme();
 
   useEffect(() => {
@@ -31,7 +32,8 @@ export default function CodeEditor({
   }, [isDark]);
 
   useEffect(() => {
-    const js = `
+    if (isLoaded) {
+      const js = `
        if(typeof editor !== 'undefined'){
        if(editor.getValue() !== ${JSON.stringify(initialValue)}){
        editor.setValue(${JSON.stringify(initialValue)});
@@ -39,8 +41,9 @@ export default function CodeEditor({
        }
        true;
        `;
-    WebViewRef.current?.injectJavaScript(js);
-  }, [initialValue]);
+      WebViewRef.current?.injectJavaScript(js);
+    }
+  }, [initialValue, isLoaded]);
 
   useEffect(() => {
     if (highlightLine == null) return;
@@ -179,6 +182,9 @@ export default function CodeEditor({
         ref={WebViewRef}
         originWhitelist={["*"]}
         source={source}
+        onLoadEnd={() => {
+          setIsLoaded(true);
+        }}
         onMessage={(event) => onChange(event.nativeEvent.data)}
         style={[styles.webview, { backgroundColor: theme.surface }]}
       ></WebView>
