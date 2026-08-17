@@ -33,3 +33,15 @@ def delete_my_file(id:int, db:Session=Depends(database.get_db), current_user_id:
     file_query.delete(synchronize_session=False)
     db.commit()
     return{"detail": "file deleted successfully!"}
+
+
+@router.put("/{id}", response_model = schema.FileResponse)
+def update_my_file(id: int, file:schema.FileCreate, db:Session=Depends(database.get_db),
+current_user_id: int = Depends(oauth2.get_current_user)):
+    file_query = db.query(models.File).filter(models.File.id == id, models.File.user_id == current_user_id)
+    db_file = file_query.first()
+    if not db_file:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="file not found!")
+    file_query.update({"title": file.title, "content": file.content}, synchronize_session=False)
+    db.commit()
+    return file_query.first()

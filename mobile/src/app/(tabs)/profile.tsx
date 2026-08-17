@@ -218,6 +218,7 @@ export default function Profile() {
                 onPress={async () => {
                   await AsyncStorage.setItem("edit_title", file.title);
                   await AsyncStorage.setItem("edit_code", file.content);
+                  await AsyncStorage.setItem("edit_file_id", String(file.id));
                   router.replace("/editor");
                 }}
               >

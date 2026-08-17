@@ -31,6 +31,8 @@ export default function Index() {
   const { theme, isDark, toggleTheme } = useTheme();
   const [isPdfVisible, setIsPdfVisible] = useState<boolean>(false);
   const [title, setTitle] = useState("");
+  const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+  const [initialCode, setInitialCode] = useState("");
 
   const handleCompile = async () => {
     setLoading(true);
@@ -89,6 +91,33 @@ export default function Index() {
       alert("Error:" + error);
     }
   };
+  const handleUpdateFile = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (!currentFileId) {
+      return;
+    }
+    try {
+      const response = await fetch(`${API_URL}/files/${currentFileId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: title,
+          content: code,
+        }),
+      });
+      if (response.ok) {
+        alert("File updated successfully");
+        setInitialCode(code);
+      } else {
+        alert("Something went wrong");
+      }
+    } catch (err: any) {
+      alert("updating error:" + err);
+    }
+  };
 
   const handleSyncRequest = async (page: number, x: number, y: number) => {
     console.log(`[SYNC] Tapped PDF! Page: ${page}, X: ${x}, Y: ${y}`);
@@ -113,13 +142,17 @@ export default function Index() {
       const loadSavedFile = async () => {
         const savedTitle = await AsyncStorage.getItem("edit_title");
         const savedCode = await AsyncStorage.getItem("edit_code");
+        const savedFileId = await AsyncStorage.getItem("edit_file_id");
 
         if (savedTitle && savedCode) {
           setTitle(savedTitle);
           setCode(savedCode);
+          setCurrentFileId(savedFileId);
+          setInitialCode(savedCode);
 
           await AsyncStorage.removeItem("edit_title");
           await AsyncStorage.removeItem("edit_code");
+          await AsyncStorage.removeItem("edit_file_id");
         }
       };
       loadSavedFile();
@@ -255,23 +288,45 @@ export default function Index() {
             />
           </View>
           <View className="flex-row mx-3 mb-2 gap-3">
-            <Pressable
-              style={{
-                backgroundColor: theme.surface,
-                borderColor: theme.border,
-                borderWidth: 1,
-              }}
-              className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
-              onPress={() => handleSaveFile()}
-            >
-              <Text className="text-2xl">
-                <FontAwesome
-                  name="check"
-                  size={24}
-                  color={theme.textSecondary}
-                />
-              </Text>
-            </Pressable>
+            {!currentFileId && (
+              <Pressable
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                }}
+                className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
+                onPress={() => handleSaveFile()}
+              >
+                <Text className="text-2xl">
+                  <FontAwesome
+                    name="check"
+                    size={24}
+                    color={theme.textSecondary}
+                  />
+                </Text>
+              </Pressable>
+            )}
+
+            {currentFileId && code != initialCode && (
+              <Pressable
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                }}
+                className="w-14 h-14 rounded-full flex items-center justify-center shadow-md active:opacity-80"
+                onPress={() => handleUpdateFile()}
+              >
+                <Text className="text-2xl">
+                  <FontAwesome
+                    name="refresh"
+                    size={24}
+                    color={theme.textSecondary}
+                  />
+                </Text>
+              </Pressable>
+            )}
 
             <Pressable
               className="flex-1 py-4 rounded-full items-center justify-center shadow-md active:opacity-80"
