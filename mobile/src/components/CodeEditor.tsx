@@ -17,6 +17,7 @@ export default function CodeEditor({
   const WebViewRef = useRef<WebView>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { isDark, theme } = useTheme();
+  const lastPushedValue = useRef(initialValue);
 
   useEffect(() => {
     const themeName = isDark ? "dracula" : "default";
@@ -32,7 +33,8 @@ export default function CodeEditor({
   }, [isDark]);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && initialValue !== lastPushedValue.current) {
+      lastPushedValue.current = initialValue;
       const js = `
        if(typeof editor !== 'undefined'){
        if(editor.getValue() !== ${JSON.stringify(initialValue)}){
@@ -101,9 +103,10 @@ export default function CodeEditor({
         });
 
         const inputDom = editor.getInputField();
+
         const handleKey = (e) => {
           const cur = editor.getCursor();
-          if(cur.ch === 0 && cur.line > 0){
+          if (cur.ch === 0 && cur.line > 0) {
             e.preventDefault();
             const prevlen = editor.getLine(cur.line - 1).length;
             editor.replaceRange("", {line: cur.line - 1, ch:prevlen}, {line: cur.line, ch: 0});
@@ -114,10 +117,12 @@ export default function CodeEditor({
             const sel = window.getSelection();
             if (sel && !sel.isCollapsed) {
                 e.preventDefault();
-                if (sel.toString().length >= editor.getValue().length - 20) {
+                const textLen = editor.getValue().length;
+                const selLen = sel.toString().length;
+                if (selLen >= textLen) {
                     editor.setValue("");
                 } else {
-                    sel.deleteFromDocument();
+                    document.execCommand("delete"); 
                 }
                 return true;
             }
@@ -125,27 +130,35 @@ export default function CodeEditor({
         };
 
         inputDom.addEventListener("beforeinput", (e) => {
-          if(e.inputType === "deleteContentBackward" || e.inputType === "deleteByCut"){
-            if (tryDeleteSelection(e)) return;
-            handleKey(e);
+          if (e.inputType === "deleteContentBackward" || e.inputType === "deleteByCut") {
+             if (editor.getValue().length <= 1) {
+                 e.preventDefault();
+                 editor.setValue("");
+                 return;
+             }
+             if (tryDeleteSelection(e)) return;
+             handleKey(e);
           }
         });
 
         inputDom.addEventListener("keydown", (e) => {
-          if(e.key === "Backspace" || e.keyCode === 8){
-            if (tryDeleteSelection(e)) return;
-            handleKey(e);
+          if (e.key === "Backspace" || e.keyCode === 8) {
+             if (editor.getValue().length <= 1) {
+                 e.preventDefault();
+                 editor.setValue("");
+                 return;
+             }
+             if (tryDeleteSelection(e)) return;
+             handleKey(e);
           }
         });
-
-
-      inputDom.addEventListener("touchstart", (e) => {
-      e.stopPropagation();
-      });
-      inputDom.addEventListener("touchend", (e) => {
-        e.stopPropagation();
-      });
         
+        inputDom.addEventListener("touchstart", (e) => {
+          e.stopPropagation();
+        });
+        inputDom.addEventListener("touchend", (e) => {
+          e.stopPropagation();
+        });
 
         let timeout;
         editor.on("change", () => {
@@ -175,6 +188,12 @@ export default function CodeEditor({
     [],
   );
 
+  const handleMessage = (event: any) => {
+    const text = event.nativeEvent.data;
+    lastPushedValue.current = text;
+    onChange(text);
+  };
+
   return (
     <View style={styles.container}>
       <WebView
@@ -185,7 +204,7 @@ export default function CodeEditor({
         onLoadEnd={() => {
           setIsLoaded(true);
         }}
-        onMessage={(event) => onChange(event.nativeEvent.data)}
+        onMessage={handleMessage}
         style={[styles.webview, { backgroundColor: theme.surface }]}
       ></WebView>
     </View>

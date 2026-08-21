@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { dummyCode } from "@/contants/dummyCode";
 import {
   Alert,
@@ -83,6 +83,7 @@ export default function Index() {
       });
       if (response.ok) {
         alert("Filed saved successfully!");
+        await AsyncStorage.removeItem("secret_code");
       } else {
         alert("Something went wrong while saving file");
       }
@@ -111,6 +112,7 @@ export default function Index() {
       if (response.ok) {
         alert("File updated successfully");
         setInitialCode(code);
+        await AsyncStorage.removeItem("secret_code");
       } else {
         alert("Something went wrong");
       }
@@ -158,6 +160,49 @@ export default function Index() {
       loadSavedFile();
     }, []),
   );
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (code.trim().length === 0) {
+        return;
+      }
+
+      await AsyncStorage.setItem("secret_code", code);
+      console.log("auto saved code");
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [code])
+
+  useEffect(() => {
+    const checkDraft = async () => {
+      const draftCode = await AsyncStorage.getItem("secret_code");
+
+      if (draftCode) {
+        Alert.alert(
+          "Draft found",
+          "Do you want to restore last session?",
+          [
+            {
+              text: "Delete it",
+              style: "destructive",
+              onPress: async () => {
+                await AsyncStorage.removeItem("secret_code");
+              }
+            },
+            {
+              text: "Restore",
+              onPress: async () => {
+                setCode(draftCode);
+              }
+            }
+          ]
+        );
+      }
+    };
+    checkDraft();
+  }, [])
+
 
   if (isPdfVisible && pdfBase64) {
     return (
