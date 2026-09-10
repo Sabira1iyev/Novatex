@@ -7,13 +7,14 @@ import {
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { API_URL } from "@/contants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
 import { compileLatex } from "@/services/api";
 import PdfViewer from "@/components/PdfViewer";
 import { SafeAreaView } from "react-native-safe-area-context";
+import DeleteUserModal from "@/modals/DeleteUserModal";
 export default function Profile() {
   const { theme } = useTheme();
   const router = useRouter();
@@ -22,6 +23,19 @@ export default function Profile() {
   const [pdfBase64, setPdfBase64] = useState<string | null>(null);
   const [isPdfVisible, setIsPdfVisible] = useState(false);
   const [loadingPdf, setLoadingPdf] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadAuthData = async () => {
+      const id = await AsyncStorage.getItem("user_id");
+      const token = await AsyncStorage.getItem("userToken");
+      setUserToken(token);
+      setUserId(id);
+    }
+    loadAuthData();
+  }, [])
 
   const handleViewPdf = async (file: any) => {
     setLoadingPdf(file.id);
@@ -39,24 +53,24 @@ export default function Profile() {
     setLoadingPdf(null);
   };
 
-  const handleDeleteUser = async () => {
-    const user_id = await AsyncStorage.getItem("user_id");
-    const token = await AsyncStorage.getItem("userToken");
-    if (user_id && token) {
-      const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        await AsyncStorage.removeItem("user_id");
-        await AsyncStorage.removeItem("userToken");
-        router.replace("/auth/sign-in");
-      }
-    }
-  };
+  // const handleDeleteUser = async () => {
+  //   const user_id = await AsyncStorage.getItem("user_id");
+  //   const token = await AsyncStorage.getItem("userToken");
+  //   if (user_id && token) {
+  //     const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
+  //       method: "DELETE",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     if (response.ok) {
+  //       await AsyncStorage.removeItem("user_id");
+  //       await AsyncStorage.removeItem("userToken");
+  //       router.replace("/auth/sign-in");
+  //     }
+  //   }
+  // };
 
   const handleDeleteBook = async (id: number) => {
     const token = await AsyncStorage.getItem("userToken");
@@ -72,6 +86,11 @@ export default function Profile() {
       setFiles(files.filter((f) => f.id !== id));
     }
   };
+
+  const handleLogout = async () => {
+    await AsyncStorage.multiRemove(["userToken", "user_id"]);
+    router.replace("/auth/sign-in")
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -134,7 +153,7 @@ export default function Profile() {
             </Text>
           </Pressable>
         </View>
-        <PdfViewer base64={pdfBase64} onSyncRequest={() => {}} />
+        <PdfViewer base64={pdfBase64} onSyncRequest={() => { }} />
       </SafeAreaView>
     );
   }
@@ -310,13 +329,21 @@ export default function Profile() {
         <Pressable
           className="mt-auto mb-10 py-4 items-center shadow-sm rounded-full active:opacity-80"
           style={{ backgroundColor: theme.danger }}
-          onPress={() => handleDeleteUser()}
+          onPress={() => setIsDeleteModalOpen(!isDeleteModalOpen)}
         >
           <Text className="text-xl font-semibold" style={{ color: "#FFFFFF" }}>
             Delete account
           </Text>
         </Pressable>
       </View>
-    </View>
+      {
+        isDeleteModalOpen && userToken && userId && (
+          <DeleteUserModal onClose={() => setIsDeleteModalOpen(false)} userId={userId}
+            userToken={userToken}
+            onDeleted={() => router.replace("/auth/sign-in")}
+          />
+        )
+      }
+    </View >
   );
 }

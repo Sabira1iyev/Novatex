@@ -10,14 +10,11 @@ export default function Index() {
   useEffect(() => {
     const checkUser = async () => {
       const token = await getToken();
-
-      if (token) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
+      setIsLoggedIn(!!token);
+      setIsChecking(false);
     };
-    setIsChecking(false);
+    checkUser();
+
   }, []);
 
   if (isChecking) {

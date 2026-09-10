@@ -21,6 +21,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "@/contants/config";
 import { FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function Index() {
   const [code, setCode] = useState("");
@@ -203,6 +205,27 @@ export default function Index() {
     checkDraft();
   }, [])
 
+  const handleSavePdf = async () => {
+    if (pdfBase64) {
+      try {
+        const safeTitle = title.trim() ? title.replace(/\s+/g, '_') : "novatex";
+        const fileName = `${safeTitle}.pdf`;
+        const file = new FileSystem.File(FileSystem.Paths.document, fileName);
+
+        file.write(pdfBase64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        await Sharing.shareAsync(file.uri, {
+          mimeType: `application/pdf`,
+          dialogTitle: `Share or save ${fileName} file`
+        })
+      }
+      catch (error) {
+        Alert.alert("error", "Something went wrong while saving file.");
+        console.log(error);
+      }
+    }
+  };
 
   if (isPdfVisible && pdfBase64) {
     return (
@@ -211,7 +234,7 @@ export default function Index() {
         style={{ backgroundColor: theme.background }}
       >
         <View
-          className="flex-row items-center px-4 py-3 border-b"
+          className="flex-row items-center justify-between px-4 py-3 border-b"
           style={{
             borderColor: theme.border,
             backgroundColor: theme.background,
@@ -229,11 +252,29 @@ export default function Index() {
               Back
             </Text>
           </Pressable>
+
+          <Pressable
+            className="px-5 py-2 rounded-full flex-row items-center shadow-sm"
+            onPress={handleSavePdf}
+            style={{
+              backgroundColor: theme.accent
+            }}
+          >
+            <Text
+              style={{ color: theme.accentText }}
+              className="font-semibold px-2"
+            >
+              Save/Share
+            </Text>
+
+          </Pressable>
         </View>
         <PdfViewer base64={pdfBase64} onSyncRequest={handleSyncRequest} />
       </SafeAreaView>
     );
   }
+
+
 
   return (
     <SafeAreaView
