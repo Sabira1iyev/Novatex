@@ -32,7 +32,7 @@ def delete_my_file(id:int, db:Session=Depends(database.get_db), current_user_id:
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail="file not found!")
     file_query.delete(synchronize_session=False)
     db.commit()
-    return{"detail": "file deleted successfully!"}
+    return{"detail": "File deleted successfully!"}
 
 
 @router.put("/{id}", response_model = schema.FileResponse)
