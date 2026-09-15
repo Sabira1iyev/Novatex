@@ -5,22 +5,25 @@ import uuid
 import base64
 import threading
 
-def delete_later(job_dir: str, delay_seconds: int = 3600):  
+
+def delete_later(job_dir: str, delay_seconds: int = 3600):
     def _delete():
         import time
+
         time.sleep(delay_seconds)
         cleanup_job(job_dir)
-    
+
     thread = threading.Thread(target=_delete, daemon=True)
     thread.start()
 
 
-def detect_engine(content:str)-> str:
+def detect_engine(content: str) -> str:
     lualatex_signals = ["fontspec", "luacode", "polyglossia", "luatexja"]
     for signal in lualatex_signals:
         if f"\\usepackage{{{signal}}}" in content:
             return "lualatex"
     return "pdflatex"
+
 
 def compile_latex(content: str):
     try:
@@ -31,15 +34,22 @@ def compile_latex(content: str):
         text_path = os.path.join(job_dir, "input.tex")
         with open(text_path, "w", encoding="utf-8") as f:
             f.write(content)
-        
+
         engine = detect_engine(content)
-        
+
         result = subprocess.run(
-            ["latexmk", f"-{engine}", "-interaction=nonstopmode","-halt-on-error", "-synctex=1", "input.tex"],
+            [
+                "latexmk",
+                f"-{engine}",
+                "-interaction=nonstopmode",
+                "-halt-on-error",
+                "-synctex=1",
+                "input.tex",
+            ],
             cwd=job_dir,
             capture_output=True,
-            encoding= "utf-8",
-            errors="replace"
+            encoding="utf-8",
+            errors="replace",
         )
 
         pdf_path = os.path.join(job_dir, "input.pdf")
@@ -53,13 +63,10 @@ def compile_latex(content: str):
                     end = min(len(lines), i + 4)
                     error_lines.extend(lines[start:end])
                     error_lines.append("---")
-            
+
             log = "\n".join(error_lines) if error_lines else result.stdout[-1500:]
 
-            return{
-                "success": False,
-                "log": log
-            }, job_dir
+            return {"success": False, "log": log}, job_dir
 
         with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
@@ -67,15 +74,16 @@ def compile_latex(content: str):
 
         delete_later(job_dir)
 
-        return {
-            "success": True,
-            "pdf_base64": pdf_base64,
-            "job_id": job_id
-        }, job_dir
-    
-    
-    except Exception as e:
+        return {"success": True, "pdf_base64": pdf_base64, "job_id": job_id}, job_dir
+
+    except subprocess.TimeoutExpired:
         return {
             "success": False,
-            "log": str(e)
-        },None
+            "log": "Compilation time out (30s limit exceeded)",
+        }, job_dir
+
+    except Exception as e:
+        return {"success": False, "log": str(e)}, None
+
+    except Exception as e:
+        return {"success": False, "log": str(e)}, None
