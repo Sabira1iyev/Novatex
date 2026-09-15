@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { View, Pressable, Text, TextInput } from "react-native";
+import { View, Pressable, Text, TextInput,Alert } from "react-native";
 import { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { saveToken } from "@/utils/auth";
@@ -31,10 +31,10 @@ export default function SignIn() {
         await AsyncStorage.setItem("user_id", String(data.user_id));
         router.replace("/(tabs)");
       } else {
-        alert(data.message);
+        Alert.alert(data.message);
       }
     } catch (error: any) {
-      alert("Hata Detayı: " + error.message);
+      Alert.alert("Hata Detayı: " + error.message);
     }
   };
 

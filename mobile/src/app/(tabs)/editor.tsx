@@ -62,14 +62,14 @@ export default function Index() {
 
   const handleSaveFile = async () => {
     if (!title) {
-      return alert("Please enter title for your file");
+      return Alert.alert("Please enter title for your file");
     }
     if (!code) {
-      return alert("Please enter some code to save.");
+      return Alert.alert("Please enter some code to save.");
     }
     const token = await AsyncStorage.getItem("userToken");
     if (!token) {
-      return alert("You must be logged in to save your files.");
+      return Alert.alert("You must be logged in to save your files.");
     }
     try {
       const response = await fetch(`${API_URL}/files/`, {
@@ -84,14 +84,14 @@ export default function Index() {
         }),
       });
       if (response.ok) {
-        alert("Filed saved successfully!");
+        Alert.alert("Filed saved successfully!");
         await AsyncStorage.removeItem("secret_code");
       } else {
-        alert("Something went wrong while saving file");
+        Alert.alert("Something went wrong while saving file");
       }
     } catch (error: any) {
       console.log(error);
-      alert("Error:" + error);
+      Alert.alert("Error:" + error);
     }
   };
   const handleUpdateFile = async () => {
@@ -112,14 +112,14 @@ export default function Index() {
         }),
       });
       if (response.ok) {
-        alert("File updated successfully");
+        Alert.alert("File updated successfully");
         setInitialCode(code);
         await AsyncStorage.removeItem("secret_code");
       } else {
-        alert("Something went wrong");
+        Alert.alert("Something went wrong");
       }
     } catch (err: any) {
-      alert("updating error:" + err);
+      Alert.alert("updating error:" + err);
     }
   };
 

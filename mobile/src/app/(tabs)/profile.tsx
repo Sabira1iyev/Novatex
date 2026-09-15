@@ -1,4 +1,5 @@
 import {
+  Alert,
   View,
   Text,
   Pressable,
@@ -45,10 +46,10 @@ export default function Profile() {
         setPdfBase64(result.pdf_base64);
         setIsPdfVisible(true);
       } else {
-        alert("Error compiling pdf");
+        Alert.alert("Error compiling pdf");
       }
     } catch (err) {
-      alert("error:" + err);
+      Alert.alert("error:" + err);
     }
     setLoadingPdf(null);
   };
@@ -62,7 +63,7 @@ export default function Profile() {
       },
     });
     if (response.ok) {
-      alert("Book deleted successfully");
+      Alert.alert("Book deleted successfully");
       setFiles(files.filter((f) => f.id !== id));
     }
   };

@@ -1,4 +1,4 @@
-import { View, Pressable, Text, Modal, StyleSheet } from "react-native";
+import { View, Pressable, Text, Modal, StyleSheet,Alert } from "react-native";
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -20,7 +20,7 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
 
     const handleDeleteUser = async () => {
         if (!userId || !userToken) {
-            alert("Session expired, please try again!")
+            Alert.alert("Session expired, please try again!")
             return;
         };
         setIsLoading(true);
@@ -38,11 +38,11 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                 onDeleted?.();
             }
             else {
-                alert("Something went wrong while deleting account.")
+                Alert.alert("Something went wrong while deleting account.")
             }
         }
         catch (error: any) {
-            alert("Network error: " + error.message)
+            Alert.alert("Network error: " + error.message)
         }
         finally {
             setIsLoading(false);
@@ -75,14 +75,17 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                         >
                             <Pressable className="flex-1 py-2.5 rounded-xl text-sm font-semibold items-center justify-center"
                                 style={{
-                                    backgroundColor: theme.surface
+                                    backgroundColor: theme.surface,
+                                    opacity: isLoading ? 0.5 : 1
+
                                 }}
                                 onPress={() => onClose()}>
+                                disabled={isLoading}
                                 <Text className="text-sm text-center"
                                     style={{
                                         color: theme.text,
                                     }}
-                                    disabled={isLoading}
+
                                 >
                                     Cancel
                                 </Text>

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable,Alert } from "react-native";
 import { useState, useEffect, use } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { FontAwesome } from "@expo/vector-icons";
@@ -64,7 +64,7 @@ export default function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Successfully Registered!" + data.message);
+        Alert.alert("Successfully Registered!" + data.message);
         router.replace("/auth/sign-in");
       } else {
         setError(data.message);
