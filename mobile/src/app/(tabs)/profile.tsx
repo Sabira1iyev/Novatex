@@ -53,32 +53,12 @@ export default function Profile() {
     setLoadingPdf(null);
   };
 
-  // const handleDeleteUser = async () => {
-  //   const user_id = await AsyncStorage.getItem("user_id");
-  //   const token = await AsyncStorage.getItem("userToken");
-  //   if (user_id && token) {
-  //     const response = await fetch(`${API_URL}/auth/users/${user_id}`, {
-  //       method: "DELETE",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     if (response.ok) {
-  //       await AsyncStorage.removeItem("user_id");
-  //       await AsyncStorage.removeItem("userToken");
-  //       router.replace("/auth/sign-in");
-  //     }
-  //   }
-  // };
-
   const handleDeleteBook = async (id: number) => {
-    const token = await AsyncStorage.getItem("userToken");
     const response = await fetch(`${API_URL}/files/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${userToken}`,
       },
     });
     if (response.ok) {

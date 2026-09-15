@@ -16,7 +16,7 @@ interface DeleteUserModalProps {
 export default function DeleteUserModal({ onClose, userId, userToken, onDeleted }: DeleteUserModalProps) {
 
     const [isLoading, setIsLoading] = useState(false);
-    const { theme, isDark, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     const handleDeleteUser = async () => {
         if (!userId || !userToken) {
@@ -52,7 +52,7 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
 
     return (
         <Modal transparent visible={true} animationType="fade" onRequestClose={onClose}>
-            <View className="h-full w-full animate-backdrop z-[100] flex items-center justify-center">
+            <View className="h-full w-full animate-backdrop z-[100] flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
                 <View className="animate-modal border border-gray-400 w-[90%] max-w-md p-6 rounded-3xl shadow-2xl relative flex flex-col gap-5"
                     style={{
                         backgroundColor: theme.background,
@@ -82,6 +82,7 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                                     style={{
                                         color: theme.text,
                                     }}
+                                    disabled={isLoading}
                                 >
                                     Cancel
                                 </Text>
@@ -97,6 +98,7 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                                     style={{ color: "#ffffff" }}
                                 >
                                     {isLoading ? "Deleting..." : "Yes, delete"}
+
                                 </Text>
                             </Pressable>
                         </View>
