@@ -28,14 +28,14 @@ app.include_router(files.router)
 
 
 @app.post("/compile")
-async def compile_tex(request: TextRequest, current_user: int = get_current_user):
+async def compile_tex(request: TextRequest, current_user: int = Depends(get_current_user)):
     result, job_dir = compile_latex(request.content)
     result["job_id"] = job_dir.split("/")[-1]
     return result
 
 
 @app.post("/synctex")
-async def synctex(request: SyncRequest, current_user: int = get_current_user):
+async def synctex(request: SyncRequest, current_user: int = Depends(get_current_user)):
     job_dir = f"jobs/{request.job_id}"
     line = run_synctex(job_dir, request.page, request.x, request.y)
 
