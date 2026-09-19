@@ -79,8 +79,10 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                                     opacity: isLoading ? 0.5 : 1
 
                                 }}
-                                onPress={() => onClose()}>
-                                disabled={isLoading}
+                                onPress={() => onClose()}
+                                  disabled={isLoading}
+                                >
+                              
                                 <Text className="text-sm text-center"
                                     style={{
                                         color: theme.text,
