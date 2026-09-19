@@ -1,12 +1,13 @@
 import { API_URL } from "@/contants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {setUserId, getUserId, clearAuth, getToken} from "@/utils/auth";
 
 export type CompileResult =
   | { success: true; pdf_base64: string; job_id: string }
   | { success: false; log: string; job_dir?: string };
 
 export async function compileLatex(content: string): Promise<CompileResult> {
-  const token = await AsyncStorage.getItem("userToken");
+  const token = await getToken();
   const response = await fetch(`${API_URL}/compile`, {
     method: "POST",
     headers: { "Content-Type": "application/json",
@@ -28,7 +29,7 @@ export const syncTex = async (
   y: number,
 ) => {
   try {
-    const token =  await AsyncStorage.getItem("userToken");
+    const token = await getToken();
     const response = await fetch(`${API_URL}/synctex`, {
       method: "POST",
       headers: {

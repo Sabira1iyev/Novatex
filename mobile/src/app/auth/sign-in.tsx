@@ -2,9 +2,9 @@ import { useRouter } from "expo-router";
 import { View, Pressable, Text, TextInput,Alert } from "react-native";
 import { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
-import { saveToken } from "@/utils/auth";
 import { API_URL } from "../../contants/config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, saveToken, setUserId, getUserId, clearAuth
+} from "@/utils/auth";
 
 export default function SignIn() {
   const router = useRouter();
@@ -27,14 +27,14 @@ export default function SignIn() {
       const data = await response.json();
 
       if (response.ok) {
-        saveToken(data.token);
-        await AsyncStorage.setItem("user_id", String(data.user_id));
+        await saveToken(data.token);
+        await setUserId(String(data.user_id));
         router.replace("/(tabs)");
       } else {
-        Alert.alert(data.message);
+        Alert.alert("Sign In failed", data.detail ?? "Please check your credentials and try again!");
       }
     } catch (error: any) {
-      Alert.alert("Hata Detayı: " + error.message);
+      Alert.alert("Error details: " + error.message);
     }
   };
 

@@ -16,6 +16,9 @@ import { compileLatex } from "@/services/api";
 import PdfViewer from "@/components/PdfViewer";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DeleteUserModal from "@/modals/DeleteUserModal";
+import {getToken, getUserId, clearAuth
+} from "@/utils/auth";
+
 export default function Profile() {
   const { theme } = useTheme();
   const router = useRouter();
@@ -30,8 +33,8 @@ export default function Profile() {
 
   useEffect(() => {
     const loadAuthData = async () => {
-      const id = await AsyncStorage.getItem("user_id");
-      const token = await AsyncStorage.getItem("userToken");
+      const id = await getUserId();
+      const token = await getToken();
       setUserToken(token);
       setUserId(id);
     }
@@ -69,7 +72,7 @@ export default function Profile() {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove(["userToken", "user_id"]);
+   await clearAuth();
     router.replace("/auth/sign-in")
   }
 
@@ -77,8 +80,8 @@ export default function Profile() {
     useCallback(() => {
       const fetchUser = async () => {
         try {
-          const user_id = await AsyncStorage.getItem("user_id");
-          const token = await AsyncStorage.getItem("userToken");
+          const user_id = await getUserId();
+          const token = await getToken();
 
           if (user_id && token) {
             const response = await fetch(`${API_URL}/auth/users/${user_id}`, {

@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { API_URL } from "@/contants/config";
 import "../global.css"
 import { useTheme } from "@/context/ThemeContext";
+import {clearAuth, getToken} from "@/utils/auth";
 
 interface DeleteUserModalProps {
     onClose: () => void;
@@ -33,8 +34,7 @@ export default function DeleteUserModal({ onClose, userId, userToken, onDeleted 
                 },
             });
             if (response.ok) {
-                await AsyncStorage.removeItem("user_id");
-                await AsyncStorage.removeItem("userToken");
+                await clearAuth();
                 onDeleted?.();
             }
             else {
