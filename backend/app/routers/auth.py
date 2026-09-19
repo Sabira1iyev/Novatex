@@ -34,15 +34,10 @@ def sign_up(user: schema.UserCreate, db: Session=Depends(database.get_db)):
 @router.post("/signin")
 def sigIn(user: schema.UserSignIn, db: Session=Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if not db_user:
-        raise HTTPException(status_code = 404, detail= "User not found!")
-
+    if not db_user or not bcrypt.checkpw(user.password.encode('utf-8'), db_user.password_hash.encode('utf-8')):
+        raise HTTPException(status_code = 404, detail= "Invalid email or password!")
     
-    is_password_correct = bcrypt.checkpw(user.password.encode('utf-8'), db_user.password_hash.encode('utf-8'))
     access_token = oauth2.create_access_token(data={"user_id": db_user.id})
-    
-    if not is_password_correct:
-        raise HTTPException(status_code=400, detail="Invalid Password!")
     
     return {
         "message": "Successfully signed In",

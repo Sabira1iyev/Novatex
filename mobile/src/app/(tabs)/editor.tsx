@@ -23,6 +23,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import {getToken, saveToken, setUserId, getUserId, clearAuth
+} from "@/utils/auth";
 
 export default function Index() {
   const [code, setCode] = useState("");
@@ -67,7 +69,7 @@ export default function Index() {
     if (!code) {
       return Alert.alert("Please enter some code to save.");
     }
-    const token = await AsyncStorage.getItem("userToken");
+    const token = await getToken();
     if (!token) {
       return Alert.alert("You must be logged in to save your files.");
     }
@@ -95,7 +97,7 @@ export default function Index() {
     }
   };
   const handleUpdateFile = async () => {
-    const token = await AsyncStorage.getItem("userToken");
+    const token = await getToken();
     if (!currentFileId) {
       return;
     }
