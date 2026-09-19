@@ -50,6 +50,7 @@ def compile_latex(content: str):
             capture_output=True,
             encoding="utf-8",
             errors="replace",
+            timeout=30
         )
 
         pdf_path = os.path.join(job_dir, "input.pdf")
